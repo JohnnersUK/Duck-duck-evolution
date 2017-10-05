@@ -3,7 +3,7 @@
 #include <atomic>
 
 /** @file Actions.h
-    @brief   Actions file defines a thread safe game action
+    @brief   The Actions file define a thread safe game action
     @details GameActions are stored here as well as a thread safe  
              GameAction variable, which has external linkage. 
 */

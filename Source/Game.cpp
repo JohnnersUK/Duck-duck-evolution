@@ -3,9 +3,9 @@
 #include <Engine/InputEvents.h>
 #include <Engine/Sprite.h>
 
-#include "Game.h"
 #include "Actions.h"
 #include "Constants.h"
+#include "Game.h"
 #include "GameFont.h"
 
 
@@ -25,6 +25,12 @@ SnakeGame::SnakeGame()
 SnakeGame::~SnakeGame()
 {
 	this->inputs->unregisterCallback(callback_id);
+
+	if (sprite)
+	{
+		delete sprite;
+		sprite = nullptr;
+	}
 }
 
 
@@ -60,7 +66,7 @@ bool SnakeGame::init()
 		return false;
 	}
 
-	// load space invader sprite
+	// load snake background sprite
 	sprite = renderer->createRawSprite();
 	sprite->position[0] = 0;
 	sprite->position[1] = 0;

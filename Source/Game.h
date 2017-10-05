@@ -5,7 +5,7 @@
 struct GameFont;
 
 /**
-*  Invaders Game. An OpenGL Game based on ASGE.
+*  SnakeGame. An OpenGL Game based on ASGE.
 */
 
 class SnakeGame:
@@ -27,6 +27,6 @@ private:
 
 	int  callback_id = -1;             /**< Input Callback ID. The callback ID assigned by the game engine. */
 	bool exit = false;                 /**< Exit boolean. If true the game loop will exit. */
-	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The space invader sprite. */
+	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The background sprite. */
 };
 
