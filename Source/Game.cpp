@@ -58,6 +58,7 @@ bool SnakeGame::init()
 
 	renderer->setWindowTitle("Snake - Game 2");
 	renderer->setClearColour(ASGE::COLOURS::BLACK);
+	renderer->setSpriteMode(ASGE::SpriteSortMode::IMMEDIATE);
 	toggleFPS();
 
 	// input callback function
@@ -160,9 +161,10 @@ void SnakeGame::update(const ASGE::GameTime &)
 */
 void SnakeGame::render(const ASGE::GameTime &)
 {
+	renderer->renderSprite(*sprite);
 	renderer->setFont(GameFont::fonts[0]->id);
 	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);
-	renderer->renderSprite(*sprite);
+	
 }
 
 
