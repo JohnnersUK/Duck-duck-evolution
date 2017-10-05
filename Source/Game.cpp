@@ -31,6 +31,12 @@ SnakeGame::~SnakeGame()
 		delete sprite;
 		sprite = nullptr;
 	}
+
+	for (auto& font : GameFont::fonts)
+	{
+		delete font;
+		font = nullptr;
+	}
 }
 
 
@@ -126,8 +132,18 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 */
 void SnakeGame::update(const ASGE::GameTime &)
 {
+	// gamepad input is polled
+	auto& gamepad = inputs->getGamePad(0);
+	if (gamepad.is_connected &&
+		gamepad.buttons[1])
+	{
+		game_action = GameAction::EXIT;
+	}
+
+	// run the game loop
 	processGameActions();
 	
+	// should we terminate the game?
 	if (shouldExit())
 	{
 		signalExit();
