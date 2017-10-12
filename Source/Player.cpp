@@ -12,7 +12,8 @@
 bool Player::drawPlayer(ASGE::Renderer *renderer)
 {
 	player_sprite = renderer->createRawSprite();
-
+	player_sprite->dims[0] = 64;
+	player_sprite->dims[1] = 64;
 	player_sprite->position[0] = player_x;
 	player_sprite->position[1] = player_y;
 

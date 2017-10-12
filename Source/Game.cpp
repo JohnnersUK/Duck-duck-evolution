@@ -129,11 +129,25 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 		if (key == ASGE::KEYS::KEY_UP)
 		{
 			game_action = GameAction::UP;
+			player.player_sprite->angle = 0.0f;
 		}
 
 		if (key == ASGE::KEYS::KEY_DOWN)
 		{
 			game_action = GameAction::DOWN;
+			player.player_sprite->angle = 3.14f; //Oddly specific that it's in radians rather than degrees
+		}
+
+		if (key == ASGE::KEYS::KEY_LEFT)
+		{
+			game_action = GameAction::LEFT;
+			player.player_sprite->angle = 4.71f;
+		}
+
+		if (key == ASGE::KEYS::KEY_RIGHT)
+		{
+			game_action = GameAction::RIGHT;
+			player.player_sprite->angle = 1.57f;
 		}
 	}
 }
@@ -160,7 +174,7 @@ void SnakeGame::update(const ASGE::GameTime &)
 	processGameActions();
 	
 	//TODO: Untie movment from framerate using delta time
-	player.player_sprite->position[player.player_direction] += player.player_speed;
+	player.player_sprite->position[player.player_direction] += (player.player_speed*player.player_speed_multi);
 
 	// should we terminate the game?
 	if (shouldExit())
@@ -209,6 +223,18 @@ void SnakeGame::processGameActions()
 	if (game_action == GameAction::DOWN)
 	{
 		player.player_direction = 1;
+		player.player_speed = 1;
+	}
+
+	if (game_action == GameAction::LEFT)
+	{
+		player.player_direction = 0;
+		player.player_speed = -1;
+	}
+
+	if (game_action == GameAction::RIGHT)
+	{
+		player.player_direction = 0;
 		player.player_speed = 1;
 	}
 

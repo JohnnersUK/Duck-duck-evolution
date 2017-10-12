@@ -18,6 +18,8 @@ enum class GameAction
 	NONE    =  0,  /**< means no outstanding action to process */
 	UP,
 	DOWN,
+	LEFT,
+	RIGHT,
 	EXIT           /**< signals the intention to exit the game */
 };
 
