@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <Engine/OGLGame.h>
+#include "Player.h"
 
 struct GameFont;
 
@@ -15,6 +16,7 @@ public:
 	SnakeGame();
 	~SnakeGame();
 	virtual bool init() override;
+	Player player;
 
 private:
 	void processGameActions(); 

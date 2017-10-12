@@ -16,6 +16,8 @@ enum class GameAction
 {
 	INVALID = -1,  /**< is a non-valid game action */
 	NONE    =  0,  /**< means no outstanding action to process */
+	UP,
+	DOWN,
 	EXIT           /**< signals the intention to exit the game */
 };
 

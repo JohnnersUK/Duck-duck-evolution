@@ -4,9 +4,10 @@
 #include <Engine/Sprite.h>
 
 #include "Actions.h"
-#include "Constants.h"
+#include "Constants.h"`
 #include "Game.h"
 #include "GameFont.h"
+#include "Player.h"
 
 
 /**
@@ -49,6 +50,7 @@ SnakeGame::~SnakeGame()
 */
 bool SnakeGame::init()
 {
+
 	width = WINDOW_WIDTH;
 	height = WINDOW_HEIGHT;
 	if (!initAPI())
@@ -72,17 +74,20 @@ bool SnakeGame::init()
 	{
 		return false;
 	}
-
 	// load snake background sprite
 	sprite = renderer->createRawSprite();
 	sprite->position[0] = 0;
 	sprite->position[1] = 0;
 	sprite->scalar = 1.10f;
 
+
 	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
 	{
 		return false;
 	}
+
+	player.drawPlayer(renderer.get());
+
 
 	return true;
 }
@@ -120,6 +125,16 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 		{
 			game_action = GameAction::EXIT;
 		}
+
+		if (key == ASGE::KEYS::KEY_UP)
+		{
+			game_action = GameAction::UP;
+		}
+
+		if (key == ASGE::KEYS::KEY_DOWN)
+		{
+			game_action = GameAction::DOWN;
+		}
 	}
 }
 
@@ -129,7 +144,7 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 *   @details Prepares the renderer subsystem before drawing the
 			 current frame. Once the current frame is has finished
 			 the buffers are swapped accordingly and the image shown.
-*   @return  void
+*   @return void
 */
 void SnakeGame::update(const ASGE::GameTime &)
 {
@@ -144,6 +159,9 @@ void SnakeGame::update(const ASGE::GameTime &)
 	// run the game loop
 	processGameActions();
 	
+	//TODO: Untie movment from framerate using delta time
+	player.player_sprite->position[player.player_direction] += player.player_speed;
+
 	// should we terminate the game?
 	if (shouldExit())
 	{
@@ -162,9 +180,9 @@ void SnakeGame::update(const ASGE::GameTime &)
 void SnakeGame::render(const ASGE::GameTime &)
 {
 	renderer->renderSprite(*sprite);
+	renderer->renderSprite(*player.player_sprite);
 	renderer->setFont(GameFont::fonts[0]->id);
-	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);
-	
+	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);	
 }
 
 
@@ -180,6 +198,18 @@ void SnakeGame::processGameActions()
 	if (game_action == GameAction::EXIT)
 	{
 		this->exit = true;
+	}
+
+	if (game_action == GameAction::UP)
+	{
+		player.player_direction = 1;
+		player.player_speed = -1;
+	}
+
+	if (game_action == GameAction::DOWN)
+	{
+		player.player_direction = 1;
+		player.player_speed = 1;
 	}
 
 	game_action = GameAction::NONE;
