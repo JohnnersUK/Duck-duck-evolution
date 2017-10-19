@@ -4,10 +4,11 @@
 #include <Engine/Sprite.h>
 
 #include "Actions.h"
-#include "Constants.h"`
+#include "Constants.h"
 #include "Game.h"
 #include "GameFont.h"
 #include "Player.h"
+#include "Pickup.h"
 
 
 /**
@@ -50,7 +51,6 @@ SnakeGame::~SnakeGame()
 */
 bool SnakeGame::init()
 {
-
 	width = WINDOW_WIDTH;
 	height = WINDOW_HEIGHT;
 	if (!initAPI())
@@ -87,8 +87,8 @@ bool SnakeGame::init()
 	}
 
 	player.drawPlayer(renderer.get());
-
-
+	pickup.drawPickup(renderer.get());
+	
 	return true;
 }
 
@@ -160,8 +160,9 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 			 the buffers are swapped accordingly and the image shown.
 *   @return void
 */
-void SnakeGame::update(const ASGE::GameTime &)
+void SnakeGame::update(const ASGE::GameTime & time)
 {
+	i += 1;
 	// gamepad input is polled
 	auto& gamepad = inputs->getGamePad(0);
 	if (gamepad.is_connected &&
@@ -172,9 +173,28 @@ void SnakeGame::update(const ASGE::GameTime &)
 
 	// run the game loop
 	processGameActions();
-	
-	//TODO: Untie movment from framerate using delta time
-	player.player_sprite->position[player.player_direction] += (player.player_speed*player.player_speed_multi);
+	if (i == 30)
+	{
+		lastPos[0] = player.player_sprite->position[0];
+		lastPos[1] = player.player_sprite->position[1];
+
+		player.player_sprite->position[player.player_direction] += 64;
+
+		//TODO Fix this function to properly pass the last position
+		for (int x = 0; x < player.getLength(); x++)
+		{
+			snake_body[x]->body_sprite->position[0] = lastPos[0];
+			snake_body[x]->body_sprite->position[1] = lastPos[1];
+		}
+		i = 0;
+	}
+
+
+
+	if (player.collision(pickup, snake_body))
+	{
+		snake_body[player.getLength() - 1]->drawBody(renderer.get());
+	}
 
 	// should we terminate the game?
 	if (shouldExit())
@@ -195,9 +215,19 @@ void SnakeGame::render(const ASGE::GameTime &)
 {
 	renderer->renderSprite(*sprite);
 	renderer->renderSprite(*player.player_sprite);
+	renderer->renderSprite(*pickup.pickup_sprite);
+
+	//TODO make this render each body part independantly
+	if (player.getLength() > 0)
+	{
+		renderer->renderSprite(*snake_body[player.getLength() - 1]->body_sprite);
+	}
+
 	renderer->setFont(GameFont::fonts[0]->id);
-	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);	
+	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);
 }
+
+
 
 
 /**

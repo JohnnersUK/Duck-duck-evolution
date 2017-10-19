@@ -1,7 +1,10 @@
 #pragma once
 #include <string>
 #include <Engine/OGLGame.h>
+#include <vector>
 #include "Player.h"
+#include "Body.h"
+#include "Pickup.h"
 
 struct GameFont;
 
@@ -17,6 +20,9 @@ public:
 	~SnakeGame();
 	virtual bool init() override;
 	Player player;
+	Body *snake_body[100];
+	Pickup pickup;
+
 
 private:
 	void processGameActions(); 
@@ -30,5 +36,10 @@ private:
 	int  callback_id = -1;             /**< Input Callback ID. The callback ID assigned by the game engine. */
 	bool exit = false;                 /**< Exit boolean. If true the game loop will exit. */
 	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The background sprite. */
+
+	int i = -1;
+	int lastPos[1];
+	int newPos[1];
+
 };
 

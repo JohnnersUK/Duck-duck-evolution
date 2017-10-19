@@ -21,10 +21,31 @@ bool Player::drawPlayer(ASGE::Renderer *renderer)
 	{
 		return true;
 	}
-
+	return false;
 }
 
 Player::~Player()
 {
 	return;
+}
+
+int Player::getLength()
+{
+	return length;
+}
+
+bool Player::collision(Pickup pickup, Body *snake_body[])
+{
+	if (player_sprite->position[0] + 32 > pickup.pickup_sprite->position[0] - 32 && player_sprite->position[0] - 32 < pickup.pickup_sprite->position[0] + 32) //Check x position
+	{
+		if (player_sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && player_sprite->position[1] - 32 < pickup.pickup_sprite->position[1] + 32) //Check y position
+		{
+			length += 1;
+			snake_body[length - 1] = new Body;
+			pickup.pickup_sprite->position[0] += 50;
+			pickup.pickup_sprite->position[1] += 10;
+			return true;
+		}
+	}
+	return false;
 }
