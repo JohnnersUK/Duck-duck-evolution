@@ -4,6 +4,7 @@
 #include <Engine/Sprite.h>
 
 #include "Actions.h"
+#include "GameState.h"
 #include "Constants.h"
 #include "Game.h"
 #include "GameFont.h"
@@ -68,7 +69,7 @@ bool SnakeGame::init()
 	
 	// load fonts we need
 	GameFont::fonts[0] = new GameFont(
-		renderer->loadFont("..\\..\\Resources\\Fonts\\Comic.ttf", 42), "default", 42);
+		renderer->loadFont("..\\..\\Resources\\Fonts\\Monkey.ttf", 42), "default", 42);
 	
 	if (GameFont::fonts[0]->id == -1)
 	{
@@ -106,6 +107,19 @@ bool SnakeGame::shouldExit() const
 	return (renderer->exit() || this->exit);
 }
 
+/*
+*	Updates the snakes body one chunk at a time
+*	Stores last pos, moves to new pos, updates new pos
+*/
+void SnakeGame::updateSnakeBody()
+{
+	for (int x = 0; x < player.getLength(); x++)
+	{
+		snake_body[x]->body_sprite->position[0] = new_pos[0];
+		snake_body[x]->body_sprite->position[1] = new_pos[1];
+	}
+	return;
+}
 
 /**
 *   @brief   Processes any key inputs and translates them to a GameAction
@@ -138,7 +152,7 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 		if (key == ASGE::KEYS::KEY_DOWN)
 		{
 			game_action = GameAction::DOWN;
-			player.player_sprite->angle = 3.14f; //Oddly specific that it's in radians rather than degrees
+			player.player_sprite->angle = 3.14f;
 		}
 
 		if (key == ASGE::KEYS::KEY_LEFT)
@@ -151,6 +165,11 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 		{
 			game_action = GameAction::RIGHT;
 			player.player_sprite->angle = 1.57f;
+		}
+
+		if (key == ASGE::KEYS::KEY_ENTER)
+		{
+			game_action = GameAction::SELECT;
 		}
 	}
 }
@@ -165,7 +184,7 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 */
 void SnakeGame::update(const ASGE::GameTime & time)
 {
-	i += 1;
+
 	// gamepad input is polled
 	auto& gamepad = inputs->getGamePad(0);
 	if (gamepad.is_connected &&
@@ -176,36 +195,25 @@ void SnakeGame::update(const ASGE::GameTime & time)
 
 	// run the game loop
 	processGameActions();
-	if (i == 30)
+
+	if (game_state == GameState::PLAY)
 	{
-		new_pos[0] = player.player_sprite->position[0];
-		new_pos[1] = player.player_sprite->position[1];
-
-		player.player_sprite->position[player.player_direction] += player.player_speed*64;
-
-		//TODO Fix this function to properly pass the last position
-		for (int x = 0; x < player.getLength(); x++)
+		i += 1;
+		if (i == 30)
 		{
-			/* For some reason unknown to me, this line of code breaks
-			the game and makes the snake body move at a tangent to the
-			player body... fuck my life  */
-			last_pos[0] = snake_body[x]->body_sprite->position[0]; 
-			last_pos[1] = snake_body[x]->body_sprite->position[1];
-			snake_body[x]->body_sprite->position[0] = new_pos[0];
-			snake_body[x]->body_sprite->position[1] = new_pos[1];
-			new_pos[0] = last_pos[0];
-			new_pos[1] = last_pos[1];
+			new_pos[0] = player.player_sprite->position[0];
+			new_pos[1] = player.player_sprite->position[1];
+
+			player.player_sprite->position[player.player_direction] += player.player_speed * 64;
+			updateSnakeBody();
+			i = 0;
 		}
-		i = 0;
+
+		if (player.collision(pickup, snake_body))
+		{
+			snake_body[(player.getLength() - 1)]->drawBody(renderer.get());
+		}
 	}
-
-
-
-	if (player.collision(pickup, snake_body))
-	{
-		snake_body[player.getLength() - 1]->drawBody(renderer.get());
-	}
-
 	// should we terminate the game?
 	if (shouldExit())
 	{
@@ -223,23 +231,42 @@ void SnakeGame::update(const ASGE::GameTime & time)
 */
 void SnakeGame::render(const ASGE::GameTime &)
 {
-	renderer->renderSprite(*sprite);
-	renderer->renderSprite(*player.player_sprite);
-	renderer->renderSprite(*pickup.pickup_sprite);
+	renderer->setFont(GameFont::fonts[0]->id);
 
-	//TODO make this render each body part independant
-	for (int x = 0; x < player.getLength(); x++)
+	switch (menu_option)
 	{
-		renderer->renderSprite(*snake_body[x]->body_sprite);
+	case 0:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::DARKGREEN);
+		break;
+	case 1:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::DARKGREEN);
+		break;
+	case 2:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::GREEN);
+		break;
 	}
 
+	if (game_state == GameState::PLAY)
+	{
+		renderer->renderSprite(*player.player_sprite);
+		renderer->renderSprite(*pickup.pickup_sprite);
+		//TODO make this render each body part independant
+		for (int x = 0; x < player.getLength(); x++)
+		{
+			renderer->renderSprite(*snake_body[x]->body_sprite);
+		}
+	}
 
-	renderer->setFont(GameFont::fonts[0]->id);
-	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);
 }
-
-
-
 
 /**
 *   @brief   Processes the next game action
@@ -250,33 +277,87 @@ void SnakeGame::render(const ASGE::GameTime &)
 */
 void SnakeGame::processGameActions()
 {
-	if (game_action == GameAction::EXIT)
+	switch (game_state)
 	{
-		this->exit = true;
-	}
+	case GameState::MAIN:
+		if (game_action == GameAction::EXIT)
+		{
+			this->exit = true;
+		}
 
-	if (game_action == GameAction::UP)
-	{
-		player.player_direction = 1;
-		player.player_speed = -1;
-	}
+		if (game_action == GameAction::UP)
+		{
+			menu_option --;
+			if (menu_option < 0)
+			{
+				menu_option = 0;
+			}
+		}
 
-	if (game_action == GameAction::DOWN)
-	{
-		player.player_direction = 1;
-		player.player_speed = 1;
-	}
+		if (game_action == GameAction::DOWN)
+		{
+			menu_option ++;
+			if (menu_option > 2)
+			{
+				menu_option = 2;
+			}
+		}
 
-	if (game_action == GameAction::LEFT)
-	{
-		player.player_direction = 0;
-		player.player_speed = -1;
-	}
+		if (game_action == GameAction::SELECT)
+		{
+			switch (menu_option)
+			{
+			case 0:
+				game_state = GameState::PLAY;
+				break;
+			case 1: 
+				break;
+			case 2:
+				this->exit = true;
+				break;
+			}
+		}
+		break;
 
-	if (game_action == GameAction::RIGHT)
-	{
-		player.player_direction = 0;
-		player.player_speed = 1;
+	case GameState::PLAY:
+
+		if (game_action == GameAction::EXIT)
+		{
+			game_state = GameState::PAUSE;
+		}
+
+		if (game_action == GameAction::UP)
+		{
+			player.player_direction = 1;
+			player.player_speed = -1;
+		}
+
+		if (game_action == GameAction::DOWN)
+		{
+			player.player_direction = 1;
+			player.player_speed = 1;
+		}
+
+		if (game_action == GameAction::LEFT)
+		{
+			player.player_direction = 0;
+			player.player_speed = -1;
+		}
+
+		if (game_action == GameAction::RIGHT)
+		{
+			player.player_direction = 0;
+			player.player_speed = 1;
+		}
+	case GameState::PAUSE:
+		if (game_action == GameAction::EXIT)
+		{
+			game_state = GameState::PLAY;
+		}
+		break;
+	case GameState::GAMEOVER:
+
+		break;
 	}
 
 	game_action = GameAction::NONE;

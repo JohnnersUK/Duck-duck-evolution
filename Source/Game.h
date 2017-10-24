@@ -40,6 +40,8 @@ private:
 	int i = 0;
 	int last_pos[1];
 	int new_pos[1];
+	int menu_option = 0;
 
+	void updateSnakeBody();
 };
 

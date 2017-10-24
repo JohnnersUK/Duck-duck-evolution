@@ -22,6 +22,9 @@
     <ClCompile Include="..\..\Source\Pickup.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\GameState.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -51,6 +54,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Pickup.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GameState.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

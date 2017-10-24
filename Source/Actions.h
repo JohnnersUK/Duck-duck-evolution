@@ -20,6 +20,7 @@ enum class GameAction
 	DOWN,
 	LEFT,
 	RIGHT,
+	SELECT,
 	EXIT           /**< signals the intention to exit the game */
 };
 
