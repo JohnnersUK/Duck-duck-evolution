@@ -88,7 +88,10 @@ bool SnakeGame::init()
 
 	player.drawPlayer(renderer.get());
 	pickup.drawPickup(renderer.get());
-	
+	last_pos[0] = 0;
+	last_pos[1] = 0;
+	new_pos[0] = 0;
+	new_pos[1] = 0;
 	return true;
 }
 
@@ -175,16 +178,23 @@ void SnakeGame::update(const ASGE::GameTime & time)
 	processGameActions();
 	if (i == 30)
 	{
-		lastPos[0] = player.player_sprite->position[0];
-		lastPos[1] = player.player_sprite->position[1];
+		new_pos[0] = player.player_sprite->position[0];
+		new_pos[1] = player.player_sprite->position[1];
 
-		player.player_sprite->position[player.player_direction] += 64;
+		player.player_sprite->position[player.player_direction] += player.player_speed*64;
 
 		//TODO Fix this function to properly pass the last position
 		for (int x = 0; x < player.getLength(); x++)
 		{
-			snake_body[x]->body_sprite->position[0] = lastPos[0];
-			snake_body[x]->body_sprite->position[1] = lastPos[1];
+			/* For some reason unknown to me, this line of code breaks
+			the game and makes the snake body move at a tangent to the
+			player body... fuck my life  */
+			last_pos[0] = snake_body[x]->body_sprite->position[0]; 
+			last_pos[1] = snake_body[x]->body_sprite->position[1];
+			snake_body[x]->body_sprite->position[0] = new_pos[0];
+			snake_body[x]->body_sprite->position[1] = new_pos[1];
+			new_pos[0] = last_pos[0];
+			new_pos[1] = last_pos[1];
 		}
 		i = 0;
 	}
@@ -217,11 +227,12 @@ void SnakeGame::render(const ASGE::GameTime &)
 	renderer->renderSprite(*player.player_sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
 
-	//TODO make this render each body part independantly
-	if (player.getLength() > 0)
+	//TODO make this render each body part independant
+	for (int x = 0; x < player.getLength(); x++)
 	{
-		renderer->renderSprite(*snake_body[player.getLength() - 1]->body_sprite);
+		renderer->renderSprite(*snake_body[x]->body_sprite);
 	}
+
 
 	renderer->setFont(GameFont::fonts[0]->id);
 	renderer->renderText("\nSTART", 375, 325, 1.0, ASGE::COLOURS::DARKORANGE);
