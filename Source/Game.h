@@ -43,5 +43,7 @@ private:
 	int menu_option = 0;
 
 	void updateSnakeBody();
+	void renderMain();
+	void renderPlay();
 };
 

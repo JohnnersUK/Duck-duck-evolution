@@ -89,10 +89,6 @@ bool SnakeGame::init()
 
 	player.drawPlayer(renderer.get());
 	pickup.drawPickup(renderer.get());
-	last_pos[0] = 0;
-	last_pos[1] = 0;
-	new_pos[0] = 0;
-	new_pos[1] = 0;
 	return true;
 }
 
@@ -113,11 +109,21 @@ bool SnakeGame::shouldExit() const
 */
 void SnakeGame::updateSnakeBody()
 {
-	for (int x = 0; x < player.getLength(); x++)
+	int x = 0;
+	new_pos[0] = player.player_sprite->position[0];
+	new_pos[1] = player.player_sprite->position[1];
+
+	player.player_sprite->position[player.player_direction] += player.player_speed * 64;
+	do
 	{
+		last_pos[0] = snake_body[x]->body_sprite->position[0];
+		last_pos[1] = snake_body[x]->body_sprite->position[1];
 		snake_body[x]->body_sprite->position[0] = new_pos[0];
 		snake_body[x]->body_sprite->position[1] = new_pos[1];
-	}
+		new_pos[0] = last_pos[0];
+		new_pos[1] = last_pos[1];
+		x++;
+	} while (x < player.getLength());
 	return;
 }
 
@@ -199,13 +205,15 @@ void SnakeGame::update(const ASGE::GameTime & time)
 	if (game_state == GameState::PLAY)
 	{
 		i += 1;
-		if (i == 30)
+		if (i == 300)
 		{
-			new_pos[0] = player.player_sprite->position[0];
-			new_pos[1] = player.player_sprite->position[1];
 
-			player.player_sprite->position[player.player_direction] += player.player_speed * 64;
-			updateSnakeBody();
+
+			if (player.getLength() > 0)
+			{
+				updateSnakeBody();
+			}
+
 			i = 0;
 		}
 
@@ -221,7 +229,42 @@ void SnakeGame::update(const ASGE::GameTime & time)
 	}
 }
 
+void SnakeGame::renderMain()
+{
+	switch (menu_option)
+	{
+	case 0:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\n> Play <", 375, 525, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nHelp & Options", 375, 575, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nExit", 375, 625, 1.0, ASGE::COLOURS::DARKGREEN);
+		break;
+	case 1:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\nPlay", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\n> Help & Options <", 375, 575, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nExit", 375, 625, 1.0, ASGE::COLOURS::DARKGREEN);
+		break;
+	case 2:
+		renderer->renderSprite(*sprite);
+		renderer->renderText("\nPlay", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nHelp & Options", 375, 575, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\n> Plz no <", 375, 625, 1.0, ASGE::COLOURS::GREEN);
+		break;
+	}
+	return;
+}
 
+void SnakeGame::renderPlay()
+{
+	renderer->renderSprite(*player.player_sprite);
+	renderer->renderSprite(*pickup.pickup_sprite);
+	//TODO make this render each body part independant
+	for (int x = 0; x < player.getLength(); x++)
+	{
+		renderer->renderSprite(*snake_body[x]->body_sprite);
+	}
+}
 /**
 *   @brief   Renders the scene
 *   @details Renders all the game objects to the current frame.
@@ -233,39 +276,15 @@ void SnakeGame::render(const ASGE::GameTime &)
 {
 	renderer->setFont(GameFont::fonts[0]->id);
 
-	switch (menu_option)
+	switch (game_state)
 	{
-	case 0:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::GREEN);
-		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::DARKGREEN);
+	case GameState::MAIN:
+		renderMain();
 		break;
-	case 1:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::GREEN);
-		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::DARKGREEN);
-		break;
-	case 2:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 375, 325, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nOptions", 375, 375, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nExit", 375, 425, 1.0, ASGE::COLOURS::GREEN);
+	case GameState::PLAY:
+		renderPlay();
 		break;
 	}
-
-	if (game_state == GameState::PLAY)
-	{
-		renderer->renderSprite(*player.player_sprite);
-		renderer->renderSprite(*pickup.pickup_sprite);
-		//TODO make this render each body part independant
-		for (int x = 0; x < player.getLength(); x++)
-		{
-			renderer->renderSprite(*snake_body[x]->body_sprite);
-		}
-	}
-
 }
 
 /**

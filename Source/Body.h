@@ -12,5 +12,6 @@ public:
 	~Body();
 
 	bool drawBody(ASGE::Renderer *renderer);
+	int getPosition(int x);
 
 };

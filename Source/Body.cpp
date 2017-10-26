@@ -29,3 +29,14 @@ bool Body::drawBody(ASGE::Renderer * renderer)
 
 	return false;
 }
+
+int Body::getPosition(int x)
+{
+	switch (x)
+	{
+	case 0: return body_sprite->position[0];
+	case 1: return body_sprite->position[1];
+	}
+
+			
+}
