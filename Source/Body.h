@@ -13,5 +13,5 @@ public:
 
 	bool drawBody(ASGE::Renderer *renderer);
 	int getPosition(int x);
-
+	int last_pos[1];
 };

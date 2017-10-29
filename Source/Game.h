@@ -37,8 +37,7 @@ private:
 	bool exit = false;                 /**< Exit boolean. If true the game loop will exit. */
 	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The background sprite. */
 
-	int i = 0;
-	int last_pos[1];
+	int count = 0;
 	int new_pos[1];
 	int menu_option = 0;
 

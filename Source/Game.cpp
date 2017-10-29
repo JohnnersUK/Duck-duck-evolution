@@ -2,6 +2,7 @@
 #include <Engine/Input.h>
 #include <Engine/InputEvents.h>
 #include <Engine/Sprite.h>
+#include <string>
 
 #include "Actions.h"
 #include "GameState.h"
@@ -109,22 +110,21 @@ bool SnakeGame::shouldExit() const
 */
 void SnakeGame::updateSnakeBody()
 {
-	int x = 0;
-	new_pos[0] = player.player_sprite->position[0];
-	new_pos[1] = player.player_sprite->position[1];
-
-	player.player_sprite->position[player.player_direction] += player.player_speed * 64;
-	do
+	int length = player.getLength();
+	snake_body[0]->last_pos[0] = snake_body[0]->body_sprite->position[0];
+	snake_body[0]->last_pos[1] = snake_body[0]->body_sprite->position[1];
+	snake_body[0]->body_sprite->position[0] = new_pos[0];
+	snake_body[0]->body_sprite->position[1] = new_pos[1];
+	if (length > 1)
 	{
-		last_pos[0] = snake_body[x]->body_sprite->position[0];
-		last_pos[1] = snake_body[x]->body_sprite->position[1];
-		snake_body[x]->body_sprite->position[0] = new_pos[0];
-		snake_body[x]->body_sprite->position[1] = new_pos[1];
-		new_pos[0] = last_pos[0];
-		new_pos[1] = last_pos[1];
-		x++;
-	} while (x < player.getLength());
-	return;
+		for (int x = 1; x < length; x++)
+		{
+			snake_body[x]->last_pos[0] = snake_body[x]->body_sprite->position[0];
+			snake_body[x]->last_pos[1] = snake_body[x]->body_sprite->position[1];
+			snake_body[x]->body_sprite->position[0] = snake_body[(x - 1)]->last_pos[0];
+			snake_body[x]->body_sprite->position[1] = snake_body[(x - 1)]->last_pos[1];
+		}
+	}
 }
 
 /**
@@ -204,17 +204,17 @@ void SnakeGame::update(const ASGE::GameTime & time)
 
 	if (game_state == GameState::PLAY)
 	{
-		i += 1;
-		if (i == 300)
+		count += 1;
+		if (count == 30)
 		{
-
-
+			new_pos[0] = player.player_sprite->position[0];
+			new_pos[1] = player.player_sprite->position[1];
+			player.player_sprite->position[player.player_axis] += player.player_direction * 64;
 			if (player.getLength() > 0)
 			{
 				updateSnakeBody();
 			}
-
-			i = 0;
+			count = 0;
 		}
 
 		if (player.collision(pickup, snake_body))
@@ -257,9 +257,12 @@ void SnakeGame::renderMain()
 
 void SnakeGame::renderPlay()
 {
+	int score = player.getScore();
+	std::string score_string = std::to_string(score);
+	//TODO: Make the game display the users score
 	renderer->renderSprite(*player.player_sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
-	//TODO make this render each body part independant
+
 	for (int x = 0; x < player.getLength(); x++)
 	{
 		renderer->renderSprite(*snake_body[x]->body_sprite);
@@ -347,26 +350,26 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::UP)
 		{
-			player.player_direction = 1;
-			player.player_speed = -1;
+			player.player_axis = 1;
+			player.player_direction = -1;
 		}
 
 		if (game_action == GameAction::DOWN)
 		{
+			player.player_axis = 1;
 			player.player_direction = 1;
-			player.player_speed = 1;
 		}
 
 		if (game_action == GameAction::LEFT)
 		{
-			player.player_direction = 0;
-			player.player_speed = -1;
+			player.player_axis = 0;
+			player.player_direction = -1;
 		}
 
 		if (game_action == GameAction::RIGHT)
 		{
-			player.player_direction = 0;
-			player.player_speed = 1;
+			player.player_axis = 0;
+			player.player_direction = 1;
 		}
 	case GameState::PAUSE:
 		if (game_action == GameAction::EXIT)

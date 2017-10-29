@@ -4,6 +4,7 @@
 #include <Engine/Sprite.h>
 
 #include "Actions.h"
+#include "GameState.h"
 #include "Constants.h"
 #include "Game.h"
 #include "GameFont.h"
@@ -34,12 +35,18 @@ int Player::getLength()
 	return length;
 }
 
+int Player::getScore()
+{
+	return score;
+}
+
 bool Player::collision(Pickup pickup, Body *snake_body[])
 {
 	if (player_sprite->position[0] + 32 > pickup.pickup_sprite->position[0] - 32 && player_sprite->position[0] - 32 < pickup.pickup_sprite->position[0] + 32) //Check x position
 	{
 		if (player_sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && player_sprite->position[1] - 32 < pickup.pickup_sprite->position[1] + 32) //Check y position
 		{
+			score += 100;
 			length ++;
 			snake_body[int(length - 1)] = new Body;
 			pickup.pickup_sprite->position[0] += 50;
@@ -47,5 +54,18 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 			return true;
 		}
 	}
+
+	for (int x = 0; x < length; x++)
+	{
+		if (player_sprite->position[0] + 32 > snake_body[x]->body_sprite->position[0] - 32 && player_sprite->position[0] - 32 < snake_body[x]->body_sprite->position[0] + 32) //Check x position
+		{
+			if (player_sprite->position[1] + 32 >  snake_body[x]->body_sprite->position[1] - 32 && player_sprite->position[1] - 32 < snake_body[x]->body_sprite->position[1] + 32) //Check y position
+			{
+				game_state = GameState::GAMEOVER;
+				return false;
+			}
+		}
+	}
+
 	return false;
 }
