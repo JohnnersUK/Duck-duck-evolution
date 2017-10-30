@@ -209,7 +209,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 		{
 			new_pos[0] = player.player_sprite->position[0];
 			new_pos[1] = player.player_sprite->position[1];
-			player.player_sprite->position[player.player_axis] += player.player_direction * 64;
+			player.player_sprite->position[player.movment_axis] += player.direction * 64;
 			if (player.getLength() > 0)
 			{
 				updateSnakeBody();
@@ -257,8 +257,6 @@ void SnakeGame::renderMain()
 
 void SnakeGame::renderPlay()
 {
-	int score = player.getScore();
-	std::string score_string = std::to_string(score);
 	//TODO: Make the game display the users score
 	renderer->renderSprite(*player.player_sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
@@ -267,6 +265,11 @@ void SnakeGame::renderPlay()
 	{
 		renderer->renderSprite(*snake_body[x]->body_sprite);
 	}
+}
+
+void SnakeGame::renderGameOver()
+{
+	renderer->renderText("\nRipperoni", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
 }
 /**
 *   @brief   Renders the scene
@@ -286,6 +289,9 @@ void SnakeGame::render(const ASGE::GameTime &)
 		break;
 	case GameState::PLAY:
 		renderPlay();
+		break;
+	case GameState::GAMEOVER:
+		renderGameOver();
 		break;
 	}
 }
@@ -350,26 +356,26 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::UP)
 		{
-			player.player_axis = 1;
-			player.player_direction = -1;
+			player.movment_axis = 1;
+			player.direction = -1;
 		}
 
 		if (game_action == GameAction::DOWN)
 		{
-			player.player_axis = 1;
-			player.player_direction = 1;
+			player.movment_axis = 1;
+			player.direction = 1;
 		}
 
 		if (game_action == GameAction::LEFT)
 		{
-			player.player_axis = 0;
-			player.player_direction = -1;
+			player.movment_axis = 0;
+			player.direction = -1;
 		}
 
 		if (game_action == GameAction::RIGHT)
 		{
-			player.player_axis = 0;
-			player.player_direction = 1;
+			player.movment_axis = 0;
+			player.direction = 1;
 		}
 	case GameState::PAUSE:
 		if (game_action == GameAction::EXIT)
@@ -378,7 +384,16 @@ void SnakeGame::processGameActions()
 		}
 		break;
 	case GameState::GAMEOVER:
+		if (game_action == GameAction::SELECT)
+		{
+			/* TODO: this
+			pickup.reset();
+			snake_body.reset();
+			*/
+			player.reset();
 
+			game_state = GameState::MAIN;
+		}
 		break;
 	}
 

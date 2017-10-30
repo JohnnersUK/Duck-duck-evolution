@@ -12,6 +12,7 @@
 
 bool Pickup::drawPickup(ASGE::Renderer* renderer)
 {
+	pickup_sprite = NULL;
 	pickup_sprite = renderer->createRawSprite();
 	pickup_sprite->dims[0] = 64;
 	pickup_sprite->dims[1] = 64;

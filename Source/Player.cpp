@@ -12,11 +12,12 @@
 
 bool Player::drawPlayer(ASGE::Renderer *renderer)
 {
+	player_sprite = NULL;
 	player_sprite = renderer->createRawSprite();
 	player_sprite->dims[0] = 64;
 	player_sprite->dims[1] = 64;
-	player_sprite->position[0] = player_x;
-	player_sprite->position[1] = player_y;
+	player_sprite->position[0] = x_position;
+	player_sprite->position[1] = y_position;
 
 	if (player_sprite->loadTexture("..\\..\\Resources\\Textures\\player.png")) 
 	{
@@ -68,4 +69,18 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 	}
 
 	return false;
+}
+
+bool Player::reset()
+{
+	player_sprite->position[0] = 100;
+	player_sprite->position[1] = 100;
+	player_sprite->angle = 0.0f;
+	x_position = 100;
+	y_position = 100;
+	length = 100;
+	score = 0;
+	movment_axis = 0;
+	direction = 0;
+	return true;
 }

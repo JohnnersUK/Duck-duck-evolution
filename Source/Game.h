@@ -44,5 +44,6 @@ private:
 	void updateSnakeBody();
 	void renderMain();
 	void renderPlay();
+	void renderGameOver();
 };
 

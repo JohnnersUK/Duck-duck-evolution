@@ -7,8 +7,8 @@ class Player
 {
 public:
 	ASGE::Sprite* player_sprite;
-	int player_axis = 0; //Which axis the player is currently moving along
-	int player_direction = 0; //The players current direction (Do not modify)
+	int movment_axis = 0; //Which axis the player is currently moving along
+	int direction = 0; //The players current direction (Do not modify)
 
 
 	Player() = default;
@@ -17,10 +17,11 @@ public:
 	int getScore();
 	bool drawPlayer(ASGE::Renderer *rendere);
 	bool collision(Pickup pickup, Body *snake_body[]);
+	bool reset();
 
 private:
-	int player_x = 100;
-	int player_y = 100;
+	int x_position = 100;
+	int y_position = 100;
 	int length = 0;
 	int score = 0;
 };
