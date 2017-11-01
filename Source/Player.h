@@ -24,8 +24,6 @@ public:
 	Bullet bullet[4];
 
 private:
-	int x_position = 100;
-	int y_position = 100;
 	int length = 0;
 	int score = 0;
 	int ammo = 5;

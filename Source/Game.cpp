@@ -406,6 +406,7 @@ void SnakeGame::processGameActions()
 			/* TODO: this
 			snake_body.reset();
 			*/
+			game_speed = 30;
 			pickup.reset();
 			player.reset();
 			if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))

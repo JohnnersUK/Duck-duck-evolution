@@ -23,7 +23,8 @@ bool Body::drawBody(ASGE::Renderer * renderer, int new_pos[])
 	body_sprite->position[0] = new_pos[0];
 	body_sprite->position[1] = new_pos[1];
 
-	if (body_sprite->loadTexture("..\\..\\Resources\\Textures\\player.png"))
+
+	if (body_sprite->loadTexture("..\\..\\Resources\\Textures\\Body.png"))
 	{
 		return true;
 	}
