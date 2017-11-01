@@ -80,8 +80,6 @@ bool SnakeGame::init()
 	sprite = renderer->createRawSprite();
 	sprite->position[0] = 0;
 	sprite->position[1] = 0;
-	sprite->scalar = 1.10f;
-
 
 	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
 	{
@@ -205,7 +203,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 	if (game_state == GameState::PLAY)
 	{
 		count += 1;
-		if (count == 30)
+		if (count == game_speed)
 		{
 			new_pos[0] = player.player_sprite->position[0];
 			new_pos[1] = player.player_sprite->position[1];
@@ -219,7 +217,8 @@ void SnakeGame::update(const ASGE::GameTime & time)
 
 		if (player.collision(pickup, snake_body))
 		{
-			snake_body[(player.getLength() - 1)]->drawBody(renderer.get());
+			snake_body[(player.getLength() - 1)]->drawBody(renderer.get(), new_pos);
+			game_speed--;
 		}
 	}
 	// should we terminate the game?
@@ -235,21 +234,21 @@ void SnakeGame::renderMain()
 	{
 	case 0:
 		renderer->renderSprite(*sprite);
-		renderer->renderText("\n> Play <", 375, 525, 1.0, ASGE::COLOURS::GREEN);
-		renderer->renderText("\nHelp & Options", 375, 575, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nExit", 375, 625, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\n> Play <", 200, 375, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nHelp & Options", 200, 425, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nExit", 200, 475, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 1:
 		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Help & Options <", 375, 575, 1.0, ASGE::COLOURS::GREEN);
-		renderer->renderText("\nExit", 375, 625, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nPlay", 200, 375, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\n> Help & Options <", 200, 425, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nExit", 200, 475, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 2:
 		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nHelp & Options", 375, 575, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Plz no <", 375, 625, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\nPlay", 200, 375, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nHelp & Options", 200, 425, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\n> Plz no <", 200, 475, 1.0, ASGE::COLOURS::GREEN);
 		break;
 	}
 	return;
@@ -258,6 +257,7 @@ void SnakeGame::renderMain()
 void SnakeGame::renderPlay()
 {
 	//TODO: Make the game display the users score
+	renderer->renderSprite(*sprite);
 	renderer->renderSprite(*player.player_sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
 
@@ -269,6 +269,7 @@ void SnakeGame::renderPlay()
 
 void SnakeGame::renderGameOver()
 {
+	renderer->renderSprite(*sprite);
 	renderer->renderText("\nRipperoni", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
 }
 /**
@@ -337,6 +338,10 @@ void SnakeGame::processGameActions()
 			{
 			case 0:
 				game_state = GameState::PLAY;
+				if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Background.png"))
+				{
+					break;
+				}
 				break;
 			case 1: 
 				break;
@@ -403,7 +408,10 @@ void SnakeGame::processGameActions()
 			*/
 			pickup.reset();
 			player.reset();
-
+			if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
+			{
+				break;
+			}
 			game_state = GameState::MAIN;
 		}
 		break;

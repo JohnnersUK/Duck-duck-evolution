@@ -38,6 +38,7 @@ private:
 	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The background sprite. */
 
 	int count = 0;
+	int game_speed = 30;
 	int new_pos[1];
 	int menu_option = 0;
 

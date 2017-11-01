@@ -1,7 +1,6 @@
 #pragma once
-
-#pragma once
 #include <Engine/Sprite.h>
+#include "Player.h"
 
 class Body
 {
@@ -11,7 +10,7 @@ public:
 	Body() = default;
 	~Body();
 
-	bool drawBody(ASGE::Renderer *renderer);
+	bool drawBody(ASGE::Renderer *renderer, int new_pos[]);
 	int getPosition(int x);
 	int last_pos[1];
 };
