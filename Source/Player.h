@@ -1,25 +1,27 @@
 #pragma once
-#include <Engine/Sprite.h>
+#include "Snake.h"
 #include "Body.h"
 #include "Pickup.h"
 #include "Bullet.h"
+#include <Engine/Sprite.h>
 
 class Player
+	//: public Snake
 {
 public:
 	Player() = default;
 	~Player();
 
-	ASGE::Sprite* player_sprite;
+	ASGE::Sprite* sprite;
 	int movment_axis = 0; //Which axis the player is currently moving along
 	int direction = 0; //The players current direction (Do not modify)
 
 	int getLength();
 	int getScore();
 
-	bool drawPlayer(ASGE::Renderer *rendere);
+	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]);// override;
 	bool collision(Pickup pickup, Body *snake_body[]);
-	bool reset();
+	bool reset();// override;
 
 	Bullet bullet[4];
 

@@ -1,16 +1,18 @@
 #pragma once
 #include <Engine/Sprite.h>
-#include "Player.h"
+#include "Snake.h"
 
-class Body
+class Body 
+	//: public Snake
 {
 public:
-	ASGE::Sprite* body_sprite;
+	ASGE::Sprite* sprite;
 
 	Body() = default;
 	~Body();
 
-	bool drawBody(ASGE::Renderer *renderer, int new_pos[]);
+	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]); //override;
+	bool reset(); //override;
 	int getPosition(int x);
 	int last_pos[1];
 };

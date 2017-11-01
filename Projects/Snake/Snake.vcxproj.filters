@@ -71,5 +71,8 @@
     <ClInclude Include="..\..\Source\Bat.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Snake.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

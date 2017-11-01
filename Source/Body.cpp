@@ -15,16 +15,16 @@ Body::~Body()
 	return;
 }
 
-bool Body::drawBody(ASGE::Renderer * renderer, int new_pos[])
+bool Body::drawSprite(ASGE::Renderer * renderer, int new_pos[])
 {
-	body_sprite = renderer->createRawSprite();
-	body_sprite->dims[0] = 64;
-	body_sprite->dims[1] = 64;
-	body_sprite->position[0] = new_pos[0];
-	body_sprite->position[1] = new_pos[1];
+	sprite = renderer->createRawSprite();
+	sprite->dims[0] = 64;
+	sprite->dims[1] = 64;
+	sprite->position[0] = new_pos[0];
+	sprite->position[1] = new_pos[1];
 
 
-	if (body_sprite->loadTexture("..\\..\\Resources\\Textures\\Body.png"))
+	if (sprite->loadTexture("..\\..\\Resources\\Textures\\Body.png"))
 	{
 		return true;
 	}
@@ -32,13 +32,19 @@ bool Body::drawBody(ASGE::Renderer * renderer, int new_pos[])
 	return false;
 }
 
+
 int Body::getPosition(int x)
 {
 	switch (x)
 	{
-	case 0: return body_sprite->position[0];
-	case 1: return body_sprite->position[1];
+	case 0: return sprite->position[0];
+	case 1: return sprite->position[1];
 	}
+}
 
-			
+
+bool Body::reset()
+{
+	//TODO: Implement this
+	return true;
 }

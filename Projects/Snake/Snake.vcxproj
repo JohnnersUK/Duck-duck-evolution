@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\Source\GameState.h" />
     <ClInclude Include="..\..\Source\Pickup.h" />
     <ClInclude Include="..\..\Source\Player.h" />
+    <ClInclude Include="..\..\Source\Snake.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Game.cpp" />

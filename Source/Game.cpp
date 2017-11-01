@@ -86,8 +86,9 @@ bool SnakeGame::init()
 		return false;
 	}
 
-	player.drawPlayer(renderer.get());
+	player.drawSprite(renderer.get(), new_pos);
 	pickup.drawPickup(renderer.get());
+	menu_option = 1;
 	return true;
 }
 
@@ -109,18 +110,18 @@ bool SnakeGame::shouldExit() const
 void SnakeGame::updateSnakeBody()
 {
 	int length = player.getLength();
-	snake_body[0]->last_pos[0] = snake_body[0]->body_sprite->position[0];
-	snake_body[0]->last_pos[1] = snake_body[0]->body_sprite->position[1];
-	snake_body[0]->body_sprite->position[0] = new_pos[0];
-	snake_body[0]->body_sprite->position[1] = new_pos[1];
+	snake_body[0]->last_pos[0] = snake_body[0]->sprite->position[0];
+	snake_body[0]->last_pos[1] = snake_body[0]->sprite->position[1];
+	snake_body[0]->sprite->position[0] = new_pos[0];
+	snake_body[0]->sprite->position[1] = new_pos[1];
 	if (length > 1)
 	{
 		for (int x = 1; x < length; x++)
 		{
-			snake_body[x]->last_pos[0] = snake_body[x]->body_sprite->position[0];
-			snake_body[x]->last_pos[1] = snake_body[x]->body_sprite->position[1];
-			snake_body[x]->body_sprite->position[0] = snake_body[(x - 1)]->last_pos[0];
-			snake_body[x]->body_sprite->position[1] = snake_body[(x - 1)]->last_pos[1];
+			snake_body[x]->last_pos[0] = snake_body[x]->sprite->position[0];
+			snake_body[x]->last_pos[1] = snake_body[x]->sprite->position[1];
+			snake_body[x]->sprite->position[0] = snake_body[(x - 1)]->last_pos[0];
+			snake_body[x]->sprite->position[1] = snake_body[(x - 1)]->last_pos[1];
 		}
 	}
 }
@@ -150,25 +151,22 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 		if (key == ASGE::KEYS::KEY_UP)
 		{
 			game_action = GameAction::UP;
-			player.player_sprite->angle = 0.0f;
 		}
 
 		if (key == ASGE::KEYS::KEY_DOWN)
 		{
 			game_action = GameAction::DOWN;
-			player.player_sprite->angle = 3.14f;
+
 		}
 
 		if (key == ASGE::KEYS::KEY_LEFT)
 		{
 			game_action = GameAction::LEFT;
-			player.player_sprite->angle = 4.71f;
 		}
 
 		if (key == ASGE::KEYS::KEY_RIGHT)
 		{
 			game_action = GameAction::RIGHT;
-			player.player_sprite->angle = 1.57f;
 		}
 
 		if (key == ASGE::KEYS::KEY_ENTER)
@@ -205,9 +203,9 @@ void SnakeGame::update(const ASGE::GameTime & time)
 		count += 1;
 		if (count == game_speed)
 		{
-			new_pos[0] = player.player_sprite->position[0];
-			new_pos[1] = player.player_sprite->position[1];
-			player.player_sprite->position[player.movment_axis] += player.direction * 64;
+			new_pos[0] = player.sprite->position[0];
+			new_pos[1] = player.sprite->position[1];
+			player.sprite->position[player.movment_axis] += player.direction * 64;
 			if (player.getLength() > 0)
 			{
 				updateSnakeBody();
@@ -217,7 +215,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 
 		if (player.collision(pickup, snake_body))
 		{
-			snake_body[(player.getLength() - 1)]->drawBody(renderer.get(), new_pos);
+			snake_body[(player.getLength() - 1)]->drawSprite(renderer.get(), new_pos);
 			game_speed--;
 		}
 	}
@@ -230,6 +228,10 @@ void SnakeGame::update(const ASGE::GameTime & time)
 
 void SnakeGame::renderMain()
 {
+	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
+	{
+		return;
+	}
 	switch (menu_option)
 	{
 	case 0:
@@ -254,24 +256,42 @@ void SnakeGame::renderMain()
 	return;
 }
 
+
+void SnakeGame::renderHelp()
+{
+	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Help.png"))
+	{
+		return;
+	}
+	renderer->renderSprite(*sprite);
+}
+
+
 void SnakeGame::renderPlay()
 {
 	//TODO: Make the game display the users score
+	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Background.png"))
+	{
+		return;
+	}
 	renderer->renderSprite(*sprite);
-	renderer->renderSprite(*player.player_sprite);
+	renderer->renderSprite(*player.sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
 
 	for (int x = 0; x < player.getLength(); x++)
 	{
-		renderer->renderSprite(*snake_body[x]->body_sprite);
+		renderer->renderSprite(*snake_body[x]->sprite);
 	}
 }
+
 
 void SnakeGame::renderGameOver()
 {
 	renderer->renderSprite(*sprite);
 	renderer->renderText("\nRipperoni", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
 }
+
+
 /**
 *   @brief   Renders the scene
 *   @details Renders all the game objects to the current frame.
@@ -281,12 +301,16 @@ void SnakeGame::renderGameOver()
 */
 void SnakeGame::render(const ASGE::GameTime &)
 {
+	renderer->renderSprite(*sprite);
 	renderer->setFont(GameFont::fonts[0]->id);
 
 	switch (game_state)
 	{
 	case GameState::MAIN:
 		renderMain();
+		break;
+	case GameState::HELP:
+		renderHelp();
 		break;
 	case GameState::PLAY:
 		renderPlay();
@@ -316,7 +340,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::UP)
 		{
-			menu_option --;
+			menu_option--;
 			if (menu_option < 0)
 			{
 				menu_option = 0;
@@ -325,7 +349,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::DOWN)
 		{
-			menu_option ++;
+			menu_option++;
 			if (menu_option > 2)
 			{
 				menu_option = 2;
@@ -338,12 +362,9 @@ void SnakeGame::processGameActions()
 			{
 			case 0:
 				game_state = GameState::PLAY;
-				if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Background.png"))
-				{
-					break;
-				}
 				break;
-			case 1: 
+			case 1:
+				game_state = GameState::HELP;
 				break;
 			case 2:
 				this->exit = true;
@@ -363,6 +384,7 @@ void SnakeGame::processGameActions()
 		{
 			if (!(player.movment_axis == 1 && player.direction == 1))
 			{
+				player.sprite->angle = 0.0f;
 				player.movment_axis = 1;
 				player.direction = -1;
 			}
@@ -372,6 +394,7 @@ void SnakeGame::processGameActions()
 		{
 			if (!(player.movment_axis == 1 && player.direction == -1))
 			{
+				player.sprite->angle = 3.14f;
 				player.movment_axis = 1;
 				player.direction = 1;
 			}
@@ -381,6 +404,7 @@ void SnakeGame::processGameActions()
 		{
 			if (!(player.movment_axis == 0 && player.direction == 1))
 			{
+				player.sprite->angle = 4.71f;
 				player.movment_axis = 0;
 				player.direction = -1;
 			}
@@ -390,17 +414,30 @@ void SnakeGame::processGameActions()
 		{
 			if (!(player.movment_axis == 0 && player.direction == -1))
 			{
+				player.sprite->angle = 1.57f;
 				player.movment_axis = 0;
 				player.direction = 1;
 			}
 		}
+	case GameState::HELP:
+	{
+		if (game_action == GameAction::SELECT)
+		{
+			game_state = GameState::MAIN;
+			menu_option = 1;
+		}
+		break;
+	}
 	case GameState::PAUSE:
+	{
 		if (game_action == GameAction::EXIT)
 		{
 			game_state = GameState::PLAY;
 		}
 		break;
+	}
 	case GameState::GAMEOVER:
+	{
 		if (game_action == GameAction::SELECT)
 		{
 			/* TODO: this
@@ -409,13 +446,11 @@ void SnakeGame::processGameActions()
 			game_speed = 30;
 			pickup.reset();
 			player.reset();
-			if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
-			{
-				break;
-			}
 			game_state = GameState::MAIN;
+			menu_option = 1;
 		}
 		break;
+	}
 	}
 
 	game_action = GameAction::NONE;

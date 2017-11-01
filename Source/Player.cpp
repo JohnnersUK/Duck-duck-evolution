@@ -14,18 +14,20 @@ Player::~Player()
 }
 
 
-bool Player::drawPlayer(ASGE::Renderer *renderer)
+bool Player::drawSprite(ASGE::Renderer *renderer, int new_pos[])
 {
 	srand(time(NULL));
-	player_sprite = nullptr;
-	player_sprite = renderer->createRawSprite();
-	player_sprite->dims[0] = 64;
-	player_sprite->dims[1] = 64;
-	player_sprite->position[0] = 64;
-	player_sprite->position[1] = 64;
+	sprite = nullptr;
+	sprite = renderer->createRawSprite();
+	sprite->dims[0] = 64;
+	sprite->dims[1] = 64;
+	new_pos[0] = 64;
+	new_pos[1] = 64;
+	sprite->position[0] = new_pos[0];
+	sprite->position[1] = new_pos[1];
 
 
-	if (player_sprite->loadTexture("..\\..\\Resources\\Textures\\player.png")) 
+	if (sprite->loadTexture("..\\..\\Resources\\Textures\\player.png")) 
 	{
 		return true;
 	}
@@ -45,21 +47,21 @@ int Player::getScore()
 bool Player::collision(Pickup pickup, Body *snake_body[])
 {
 	//Check out of bounds
-	if (player_sprite->position[0] > WINDOW_WIDTH || player_sprite->position[0] < 0)
+	if (sprite->position[0] > WINDOW_WIDTH || sprite->position[0] < 0)
 	{
 		game_state = GameState::GAMEOVER;
 		return false;
 	}
-	if (player_sprite->position[1] > WINDOW_HEIGHT || player_sprite->position[1] < 0)
+	if (sprite->position[1] > WINDOW_HEIGHT || sprite->position[1] < 0)
 	{
 		game_state = GameState::GAMEOVER;
 		return false;
 	}
 
 	//Check collision with pickups
-	if (player_sprite->position[0] + 32 > pickup.pickup_sprite->position[0] - 32 && player_sprite->position[0] - 32 < pickup.pickup_sprite->position[0] + 32) //Check x position
+	if (sprite->position[0] + 32 > pickup.pickup_sprite->position[0] - 32 && sprite->position[0] - 32 < pickup.pickup_sprite->position[0] + 32) //Check x position
 	{
-		if (player_sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && player_sprite->position[1] - 16 < pickup.pickup_sprite->position[1] + 32) //Check y position
+		if (sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && sprite->position[1] - 16 < pickup.pickup_sprite->position[1] + 32) //Check y position
 		{
 			score += 100;
 			ammo = 5;
@@ -74,9 +76,9 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 	//Check collisons with body
 	for (int x = 0; x < length; x++)
 	{
-		if (player_sprite->position[0] + 32 > snake_body[x]->body_sprite->position[0] - 32 && player_sprite->position[0] - 32 < snake_body[x]->body_sprite->position[0] + 32) //Check x position
+		if (sprite->position[0] + 32 > snake_body[x]->sprite->position[0] - 32 && sprite->position[0] - 32 < snake_body[x]->sprite->position[0] + 32) //Check x position
 		{
-			if (player_sprite->position[1] + 32 >  snake_body[x]->body_sprite->position[1] - 32 && player_sprite->position[1] - 32 < snake_body[x]->body_sprite->position[1] + 32) //Check y position
+			if (sprite->position[1] + 32 >  snake_body[x]->sprite->position[1] - 32 && sprite->position[1] - 32 < snake_body[x]->sprite->position[1] + 32) //Check y position
 			{
 				game_state = GameState::GAMEOVER;
 				return false;
@@ -89,9 +91,9 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 
 bool Player::reset()
 {
-	player_sprite->position[0] = 100;
-	player_sprite->position[1] = 100;
-	player_sprite->angle = 0.0f;
+	sprite->position[0] = 100;
+	sprite->position[1] = 100;
+	sprite->angle = 0.0f;
 	length = 0;
 	score = 100;
 	movment_axis = 0;

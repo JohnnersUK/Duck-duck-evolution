@@ -40,10 +40,13 @@ private:
 	int count = 0;
 	int game_speed = 30;
 	int new_pos[1];
-	int menu_option = 0;
+	int menu_option = 1;
 
 	void updateSnakeBody();
+
+	//render game screens
 	void renderMain();
+	void renderHelp();
 	void renderPlay();
 	void renderGameOver();
 };
