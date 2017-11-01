@@ -19,10 +19,17 @@ bool Pickup::drawPickup(ASGE::Renderer* renderer)
 	pickup_sprite->position[0] = 400;
 	pickup_sprite->position[1] = 400;
 
-	if (pickup_sprite->loadTexture("..\\..\\Resources\\Textures\\player.png"))
+	if (pickup_sprite->loadTexture("..\\..\\Resources\\Textures\\Pickup.png"))
 	{
 		return true;
 	}
 	
 	return false;
+}
+
+bool Pickup::reset()
+{
+	pickup_sprite->position[0] = 400;
+	pickup_sprite->position[1] = 400;
+	return true;
 }

@@ -11,4 +11,5 @@ public:
 	~Pickup() = default;
 
 	bool drawPickup(ASGE::Renderer *rendere);
+	bool reset();
 };

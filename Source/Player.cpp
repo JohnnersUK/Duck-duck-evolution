@@ -48,6 +48,7 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 		if (player_sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && player_sprite->position[1] - 32 < pickup.pickup_sprite->position[1] + 32) //Check y position
 		{
 			score += 100;
+			ammo = 5;
 			length ++;
 			snake_body[int(length - 1)] = new Body;
 			pickup.pickup_sprite->position[0] += 50;
@@ -78,8 +79,8 @@ bool Player::reset()
 	player_sprite->angle = 0.0f;
 	x_position = 100;
 	y_position = 100;
-	length = 100;
-	score = 0;
+	length = 0;
+	score = 100;
 	movment_axis = 0;
 	direction = 0;
 	return true;

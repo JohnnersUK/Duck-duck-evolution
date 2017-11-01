@@ -356,26 +356,38 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::UP)
 		{
-			player.movment_axis = 1;
-			player.direction = -1;
+			if (!(player.movment_axis == 1 && player.direction == 1))
+			{
+				player.movment_axis = 1;
+				player.direction = -1;
+			}
 		}
 
 		if (game_action == GameAction::DOWN)
 		{
-			player.movment_axis = 1;
-			player.direction = 1;
+			if (!(player.movment_axis == 1 && player.direction == -1))
+			{
+				player.movment_axis = 1;
+				player.direction = 1;
+			}
 		}
 
 		if (game_action == GameAction::LEFT)
 		{
-			player.movment_axis = 0;
-			player.direction = -1;
+			if (!(player.movment_axis == 0 && player.direction == 1))
+			{
+				player.movment_axis = 0;
+				player.direction = -1;
+			}
 		}
 
 		if (game_action == GameAction::RIGHT)
 		{
-			player.movment_axis = 0;
-			player.direction = 1;
+			if (!(player.movment_axis == 0 && player.direction == -1))
+			{
+				player.movment_axis = 0;
+				player.direction = 1;
+			}
 		}
 	case GameState::PAUSE:
 		if (game_action == GameAction::EXIT)
@@ -387,9 +399,9 @@ void SnakeGame::processGameActions()
 		if (game_action == GameAction::SELECT)
 		{
 			/* TODO: this
-			pickup.reset();
 			snake_body.reset();
 			*/
+			pickup.reset();
 			player.reset();
 
 			game_state = GameState::MAIN;

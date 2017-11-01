@@ -3,6 +3,7 @@
 #include "Body.h"
 #include "Pickup.h"
 
+
 class Player
 {
 public:
@@ -24,4 +25,5 @@ private:
 	int y_position = 100;
 	int length = 0;
 	int score = 0;
+	int ammo = 5;
 };
