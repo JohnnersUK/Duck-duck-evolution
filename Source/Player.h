@@ -2,7 +2,6 @@
 #include "Snake.h"
 #include "Body.h"
 #include "Pickup.h"
-#include "Bullet.h"
 #include <Engine/Sprite.h>
 
 class Player
@@ -23,7 +22,6 @@ public:
 	bool collision(Pickup pickup, Body *snake_body[]);
 	bool reset();// override;
 
-	Bullet bullet[4];
 
 private:
 	int length = 0;

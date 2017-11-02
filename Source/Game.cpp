@@ -236,21 +236,21 @@ void SnakeGame::renderMain()
 	{
 	case 0:
 		renderer->renderSprite(*sprite);
-		renderer->renderText("\n> Play <", 200, 375, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\n> Play <", 200, 375, 1.0, ASGE::COLOURS::BROWN);
 		renderer->renderText("\nHelp & Options", 200, 425, 1.0, ASGE::COLOURS::DARKGREEN);
 		renderer->renderText("\nExit", 200, 475, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 1:
 		renderer->renderSprite(*sprite);
 		renderer->renderText("\nPlay", 200, 375, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Help & Options <", 200, 425, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\n> Help & Options <", 200, 425, 1.0, ASGE::COLOURS::BROWN);
 		renderer->renderText("\nExit", 200, 475, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 2:
 		renderer->renderSprite(*sprite);
 		renderer->renderText("\nPlay", 200, 375, 1.0, ASGE::COLOURS::DARKGREEN);
 		renderer->renderText("\nHelp & Options", 200, 425, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Plz no <", 200, 475, 1.0, ASGE::COLOURS::GREEN);
+		renderer->renderText("\n> Plz no <", 200, 475, 1.0, ASGE::COLOURS::BROWN);
 		break;
 	}
 	return;
