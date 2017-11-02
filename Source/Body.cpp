@@ -15,6 +15,7 @@ Body::~Body()
 	return;
 }
 
+
 bool Body::drawSprite(ASGE::Renderer * renderer, int new_pos[])
 {
 	sprite = renderer->createRawSprite();

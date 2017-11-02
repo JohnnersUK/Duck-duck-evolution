@@ -3,7 +3,7 @@
 #include "Snake.h"
 
 class Body 
-	//: public Snake
+	: public Snake
 {
 public:
 	ASGE::Sprite* sprite;
@@ -11,8 +11,8 @@ public:
 	Body() = default;
 	~Body();
 
-	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]); //override;
-	bool reset(); //override;
+	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]) override;
+	bool reset() override;
 	int getPosition(int x);
 	int last_pos[1];
 };

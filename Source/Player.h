@@ -5,7 +5,7 @@
 #include <Engine/Sprite.h>
 
 class Player
-	//: public Snake
+	: public Snake
 {
 public:
 	Player() = default;
@@ -18,9 +18,9 @@ public:
 	int getLength();
 	int getScore();
 
-	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]);// override;
+	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]) override;
 	bool collision(Pickup pickup, Body *snake_body[]);
-	bool reset();// override;
+	bool reset() override;
 
 
 private:

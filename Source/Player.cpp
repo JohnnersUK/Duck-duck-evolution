@@ -34,15 +34,18 @@ bool Player::drawSprite(ASGE::Renderer *renderer, int new_pos[])
 	return false;
 }
 
+
 int Player::getLength()
 {
 	return length;
 }
 
+
 int Player::getScore()
 {
 	return score;
 }
+
 
 bool Player::collision(Pickup pickup, Body *snake_body[])
 {
@@ -91,8 +94,8 @@ bool Player::collision(Pickup pickup, Body *snake_body[])
 
 bool Player::reset()
 {
-	sprite->position[0] = 100;
-	sprite->position[1] = 100;
+	sprite->position[0] = 64;
+	sprite->position[1] = 64;
 	sprite->angle = 0.0f;
 	length = 0;
 	score = 100;
