@@ -41,7 +41,6 @@ SnakeGame::~SnakeGame()
 		delete font;
 		font = nullptr;
 	}
-
 }
 
 
@@ -83,6 +82,15 @@ bool SnakeGame::init()
 	sprite->position[1] = 0;
 
 	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\snake-1200x627.png"))
+	{
+		return false;
+	}
+
+	pause = renderer->createRawSprite();
+	pause->position[0] = 320;
+	pause->position[1] = 126;
+
+	if (!pause->loadTexture("..\\..\\Resources\\Textures\\pause.png"))
 	{
 		return false;
 	}
@@ -214,7 +222,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 			count = 0;
 		}
 
-		if (player.collision(pickup, snake_body))
+		if (player.collision(pickup, snake_body, game_speed))
 		{
 			snake_body[(player.getLength() - 1)]->drawSprite(renderer.get(), new_pos);
 			game_speed--;
@@ -254,6 +262,7 @@ void SnakeGame::renderMain()
 		renderer->renderText("\n> Plz no <", 100, 435, 1.0, ASGE::COLOURS::BROWN);
 		break;
 	}
+
 	return;
 }
 
@@ -265,12 +274,17 @@ void SnakeGame::renderHelp()
 		return;
 	}
 	renderer->renderSprite(*sprite);
+
+	return;
 }
 
 
 void SnakeGame::renderPlay()
 {
-	//TODO: Make the game display the users score
+	int score = player.getScore();
+	std::string score_string = "\nScore: " + std::to_string(score);
+	const char *score_const = score_string.c_str();
+
 	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Background.png"))
 	{
 		return;
@@ -283,8 +297,37 @@ void SnakeGame::renderPlay()
 	{
 		renderer->renderSprite(*snake_body[x]->sprite);
 	}
+
+	renderer->renderText(score_const, 15, 640, 1.0, ASGE::COLOURS::BLACK);
+
+	return;
 }
 
+void SnakeGame::renderPause()
+{
+	int score = player.getScore();
+	std::string score_string = "\nScore: " + std::to_string(score);
+	const char *score_const = score_string.c_str();
+
+	if (!sprite->loadTexture("..\\..\\Resources\\Textures\\Background.png"))
+	{
+		return;
+	}
+	renderer->renderSprite(*sprite);
+	renderer->renderSprite(*player.sprite);
+	renderer->renderSprite(*pickup.pickup_sprite);
+
+	for (int x = 0; x < player.getLength(); x++)
+	{
+		renderer->renderSprite(*snake_body[x]->sprite);
+	}
+
+	renderer->renderSprite(*pause);
+	renderer->renderText(score_const, 560, 290, 1.0, ASGE::COLOURS::BLACK);
+
+
+	return;
+}
 
 void SnakeGame::renderGameOver()
 {
@@ -298,6 +341,8 @@ void SnakeGame::renderGameOver()
 	renderer->renderSprite(*sprite);
 	renderer->renderText(score_const, 375, 325, 1.0, ASGE::COLOURS::BROWN);
 	renderer->renderText("\nRipperoni", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
+
+	return;
 }
 
 
@@ -323,6 +368,9 @@ void SnakeGame::render(const ASGE::GameTime &)
 		break;
 	case GameState::PLAY:
 		renderPlay();
+		break;
+	case GameState::PAUSE:
+		renderPause();
 		break;
 	case GameState::GAMEOVER:
 		renderGameOver();
@@ -391,7 +439,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::UP)
 		{
-			if (!(player.movment_axis == 1 && player.direction == 1))
+			if (!(new_pos[1] < player.sprite->position[1]))
 			{
 				player.sprite->angle = 0.0f;
 				player.movment_axis = 1;
@@ -401,7 +449,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::DOWN)
 		{
-			if (!(player.movment_axis == 1 && player.direction == -1))
+			if (!(new_pos[1] > player.sprite->position[1]))
 			{
 				player.sprite->angle = 3.14f;
 				player.movment_axis = 1;
@@ -411,7 +459,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::LEFT)
 		{
-			if (!(player.movment_axis == 0 && player.direction == 1))
+			if (!(new_pos[0] < player.sprite->position[0]))
 			{
 				player.sprite->angle = 4.71f;
 				player.movment_axis = 0;
@@ -421,7 +469,7 @@ void SnakeGame::processGameActions()
 
 		if (game_action == GameAction::RIGHT)
 		{
-			if (!(player.movment_axis == 0 && player.direction == -1))
+			if (!(new_pos[0] > player.sprite->position[0]))
 			{
 				player.sprite->angle = 1.57f;
 				player.movment_axis = 0;
@@ -449,9 +497,6 @@ void SnakeGame::processGameActions()
 	{
 		if (game_action == GameAction::SELECT)
 		{
-			/* TODO: this
-			snake_body.reset();
-			*/
 			game_speed = 30;
 			pickup.reset();
 			player.reset();

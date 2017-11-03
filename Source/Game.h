@@ -36,9 +36,10 @@ private:
 	int  callback_id = -1;             /**< Input Callback ID. The callback ID assigned by the game engine. */
 	bool exit = false;                 /**< Exit boolean. If true the game loop will exit. */
 	ASGE::Sprite* sprite = nullptr;    /**< Sprite Object. The background sprite. */
+	ASGE::Sprite* pause;
 
 	float count = 0.0f;
-	float game_speed = 30;
+	float game_speed = 30.0f;
 	int new_pos[1];
 	int menu_option = 1;
 
@@ -48,6 +49,7 @@ private:
 	void renderMain();
 	void renderHelp();
 	void renderPlay();
+	void renderPause();
 	void renderGameOver();
 };
 

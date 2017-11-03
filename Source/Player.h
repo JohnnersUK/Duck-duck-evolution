@@ -19,7 +19,7 @@ public:
 	int getScore();
 
 	bool drawSprite(ASGE::Renderer *renderer, int new_pos[]) override;
-	bool collision(Pickup pickup, Body *snake_body[]);
+	bool collision(Pickup pickup, Body *snake_body[], float &game_speed);
 	bool reset() override;
 
 
