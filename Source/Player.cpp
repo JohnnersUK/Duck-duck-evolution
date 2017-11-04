@@ -69,7 +69,6 @@ bool Player::collision(Pickup pickup, Body *snake_body[], float &game_speed)
 		if (sprite->position[1] + 32 >  pickup.pickup_sprite->position[1] - 32 && sprite->position[1] - 16 < pickup.pickup_sprite->position[1] + 32) //Check y position
 		{
 			score += 100;
-			ammo = 5;
 			length ++;
 			snake_body[int(length - 1)] = new Body;
 			do //Random a new pickup pos
