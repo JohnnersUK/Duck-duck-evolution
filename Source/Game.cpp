@@ -114,7 +114,7 @@ bool SnakeGame::shouldExit() const
 
 /*
 *	Updates the snakes body one chunk at a time
-*	Stores last pos, moves to new pos, updates new pos
+*	Stores last pos, moves to last pos of body infront
 */
 void SnakeGame::updateSnakeBody()
 {
@@ -196,13 +196,36 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 void SnakeGame::update(const ASGE::GameTime & time)
 {
 
-	// gamepad input is polled
+	// Geting gamepad input (!NOT TESTED!)
 	auto& gamepad = inputs->getGamePad(0);
-	if (gamepad.is_connected &&
-		gamepad.buttons[1])
+	if (gamepad.is_connected)
 	{
-		game_action = GameAction::EXIT;
+		if (gamepad.buttons[12])
+		{
+			game_action = GameAction::UP;
+		}
+		else if (gamepad.buttons[13])
+		{
+			game_action = GameAction::LEFT;
+		}
+		else if (gamepad.buttons[14])
+		{
+			game_action = GameAction::RIGHT;
+		}
+		else if (gamepad.buttons[15])
+		{
+			game_action = GameAction::DOWN;
+		}
+		else if (gamepad.buttons[0] || gamepad.buttons[1] || gamepad.buttons[2] || gamepad.buttons[3])
+		{
+			game_action = GameAction::SELECT;
+		}
+		else if (gamepad.buttons[9])
+		{
+			game_action = GameAction::EXIT;
+		}
 	}
+
 
 	// run the game loop
 	processGameActions();
@@ -222,10 +245,18 @@ void SnakeGame::update(const ASGE::GameTime & time)
 			count = 0;
 		}
 
+		/*
+		*	If the player.collison function returns true, they have hit a pickup
+		*	therefore the game needs to draw the new body sprite
+		*	and modify the game speed
+		*/
 		if (player.collision(pickup, snake_body, game_speed))
 		{
 			snake_body[(player.getLength() - 1)]->drawSprite(renderer.get(), new_pos);
-			game_speed--;
+			if (game_speed > 1)
+			{
+				game_speed--;
+			}
 		}
 	}
 	// should we terminate the game?
@@ -234,6 +265,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 		signalExit();
 	}
 }
+
 
 void SnakeGame::renderMain()
 {
@@ -246,19 +278,19 @@ void SnakeGame::renderMain()
 	case 0:
 		renderer->renderSprite(*sprite);
 		renderer->renderText("\n> Play <", 100, 335, 1.0, ASGE::COLOURS::BROWN);
-		renderer->renderText("\nHelp & Options", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
 		renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 1:
 		renderer->renderSprite(*sprite);
 		renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Help & Options <", 100, 385, 1.0, ASGE::COLOURS::BROWN);
+		renderer->renderText("\n> Help <", 100, 385, 1.0, ASGE::COLOURS::BROWN);
 		renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
 		break;
 	case 2:
 		renderer->renderSprite(*sprite);
 		renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nHelp & Options", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
+		renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
 		renderer->renderText("\n> Plz no <", 100, 435, 1.0, ASGE::COLOURS::BROWN);
 		break;
 	}
@@ -303,6 +335,7 @@ void SnakeGame::renderPlay()
 	return;
 }
 
+
 void SnakeGame::renderPause()
 {
 	int score = player.getScore();
@@ -328,6 +361,7 @@ void SnakeGame::renderPause()
 
 	return;
 }
+
 
 void SnakeGame::renderGameOver()
 {
