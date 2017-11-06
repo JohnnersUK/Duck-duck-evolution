@@ -34,3 +34,6 @@ bool Pickup::reset()
 	pickup_sprite->position[1] = 400;
 	return true;
 }
+
+
+

@@ -4,6 +4,7 @@
 class Snake
 {
 public:
+	//Functions
 	Snake() = default;
 	~Snake() = default;
 

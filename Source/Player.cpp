@@ -49,8 +49,6 @@ int Player::getScore()
 
 bool Player::collision(Pickup pickup, Body *snake_body[], float &game_speed)
 {
-	int new_x;
-	int new_y;
 	//Check out of bounds
 	if (sprite->position[0] > WINDOW_WIDTH-32 || sprite->position[0] < 0)
 	{
@@ -71,13 +69,6 @@ bool Player::collision(Pickup pickup, Body *snake_body[], float &game_speed)
 			score += 100;
 			length ++;
 			snake_body[int(length - 1)] = new Body;
-			do //Random a new pickup pos
-			{
-				new_x = rand() % 19;
-				new_y = rand() % 10;
-			} while (new_x > 16 && new_y > 8); //Not in the duck pond
-			pickup.pickup_sprite->position[0] = new_x*64;
-			pickup.pickup_sprite->position[1] = new_y*64;
 			return true;
 		}
 	}

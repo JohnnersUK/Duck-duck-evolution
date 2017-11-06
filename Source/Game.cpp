@@ -112,6 +112,7 @@ bool SnakeGame::shouldExit() const
 	return (renderer->exit() || this->exit);
 }
 
+
 /*
 *	Updates the snakes body one chunk at a time
 *	Stores last pos, moves to last pos of body infront
@@ -134,6 +135,7 @@ void SnakeGame::updateSnakeBody()
 		}
 	}
 }
+
 
 /**
 *   @brief   Processes any key inputs and translates them to a GameAction
@@ -183,6 +185,38 @@ void SnakeGame::input(ASGE::SharedEventData data) const
 			game_action = GameAction::SELECT;
 		}
 	}
+}
+
+
+/*
+*	Sets a new position for the pickup
+*	Randoms 2 new x and y values and multiplies them by 64 (To stick them on the grid)
+*	Checks this new position dosen't collide with the duck pond or snake body
+*	Sets the pickup position to these new values
+*/
+void SnakeGame::setPickupPos()
+{
+	int new_x;
+	int new_y;
+	bool valid_pos;
+	do //Random a new pickup pos
+	{
+		valid_pos = true;
+		new_x = rand() % 19;
+		new_y = rand() % 10;
+		if (player.getLength() > 0)
+		{
+			for (int x = 0; x < player.getLength(); x++)
+			{
+				if (new_x == (snake_body[x]->sprite->position[0]/64) && new_y == (snake_body[x]->sprite->position[1]/64))
+				{
+					valid_pos = false;
+				}
+			}
+		}
+	} while (new_x > 1024 && new_y > 512 && !valid_pos); //Not in the duck pond or on a body
+	pickup.pickup_sprite->position[0] = (new_x * 64);
+	pickup.pickup_sprite->position[1] = (new_y * 64);
 }
 
 
@@ -253,6 +287,7 @@ void SnakeGame::update(const ASGE::GameTime & time)
 		if (player.collision(pickup, snake_body, game_speed))
 		{
 			snake_body[(player.getLength() - 1)]->drawSprite(renderer.get(), new_pos);
+			setPickupPos();
 			if (game_speed > 1)
 			{
 				game_speed--;
@@ -374,7 +409,7 @@ void SnakeGame::renderGameOver()
 	const char *score_const = score_string.c_str();
 	renderer->renderSprite(*sprite);
 	renderer->renderText(score_const, 375, 325, 1.0, ASGE::COLOURS::BROWN);
-	renderer->renderText("\nRipperoni", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
+	renderer->renderText("\nEnter to continue", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
 
 	return;
 }
@@ -411,6 +446,7 @@ void SnakeGame::render(const ASGE::GameTime &)
 		break;
 	}
 }
+
 
 /**
 *   @brief   Processes the next game action
