@@ -24,7 +24,8 @@ public:
 
 	//Variables
 	Player player;
-	Body *snake_body[100];
+	Body *snake_body;
+	Body *temp_body;
 	Pickup pickup;
 
 

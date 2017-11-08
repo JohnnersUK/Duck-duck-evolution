@@ -30,8 +30,9 @@ bool Pickup::drawPickup(ASGE::Renderer* renderer)
 
 bool Pickup::reset()
 {
-	pickup_sprite->position[0] = 400;
-	pickup_sprite->position[1] = 400;
+	pickup_sprite->position[0] = 380;
+	pickup_sprite->position[1] = 380;
+
 	return true;
 }
 

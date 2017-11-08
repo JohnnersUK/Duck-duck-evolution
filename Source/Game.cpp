@@ -41,6 +41,7 @@ SnakeGame::~SnakeGame()
 		delete font;
 		font = nullptr;
 	}
+
 }
 
 
@@ -63,7 +64,7 @@ bool SnakeGame::init()
 	renderer->setWindowTitle("Snake - Game 2");
 	renderer->setClearColour(ASGE::COLOURS::BLACK);
 	renderer->setSpriteMode(ASGE::SpriteSortMode::IMMEDIATE);
-	toggleFPS();
+	//toggleFPS();
 
 	// input callback function
 	callback_id = this->inputs->addCallbackFnc(ASGE::EventType::E_KEY, &SnakeGame::input, this);
@@ -98,6 +99,10 @@ bool SnakeGame::init()
 	player.drawSprite(renderer.get(), new_pos);
 	pickup.drawPickup(renderer.get());
 	menu_option = 1;
+
+	snake_body = new Body[1];
+	temp_body = new Body[1];
+
 	return true;
 }
 
@@ -120,18 +125,21 @@ bool SnakeGame::shouldExit() const
 void SnakeGame::updateSnakeBody()
 {
 	int length = player.getLength();
-	snake_body[0]->last_pos[0] = snake_body[0]->sprite->position[0];
-	snake_body[0]->last_pos[1] = snake_body[0]->sprite->position[1];
-	snake_body[0]->sprite->position[0] = new_pos[0];
-	snake_body[0]->sprite->position[1] = new_pos[1];
+
+	snake_body[0].last_pos[0] = snake_body[0].sprite->position[0];
+	snake_body[0].last_pos[1] = snake_body[0].sprite->position[1];
+
+	snake_body[0].sprite->position[0] = new_pos[0];
+	snake_body[0].sprite->position[1] = new_pos[1];
+
 	if (length > 1)
 	{
 		for (int x = 1; x < length; x++)
 		{
-			snake_body[x]->last_pos[0] = snake_body[x]->sprite->position[0];
-			snake_body[x]->last_pos[1] = snake_body[x]->sprite->position[1];
-			snake_body[x]->sprite->position[0] = snake_body[(x - 1)]->last_pos[0];
-			snake_body[x]->sprite->position[1] = snake_body[(x - 1)]->last_pos[1];
+			snake_body[x].last_pos[0] = snake_body[x].sprite->position[0];
+			snake_body[x].last_pos[1] = snake_body[x].sprite->position[1];
+			snake_body[x].sprite->position[0] = snake_body[(x - 1)].last_pos[0];
+			snake_body[x].sprite->position[1] = snake_body[(x - 1)].last_pos[1];
 		}
 	}
 }
@@ -199,22 +207,26 @@ void SnakeGame::setPickupPos()
 	int new_x;
 	int new_y;
 	bool valid_pos;
+
 	do //Random a new pickup pos
 	{
 		valid_pos = true;
+
 		new_x = rand() % 19;
 		new_y = rand() % 10;
+
 		if (player.getLength() > 0)
 		{
 			for (int x = 0; x < player.getLength(); x++)
 			{
-				if (new_x == (snake_body[x]->sprite->position[0]/64) && new_y == (snake_body[x]->sprite->position[1]/64))
+				if (new_x == (snake_body[x].sprite->position[0]/64) && new_y == (snake_body[x].sprite->position[1]/64))
 				{
 					valid_pos = false;
 				}
 			}
 		}
-	} while (new_x > 1024 && new_y > 512 && !valid_pos); //Not in the duck pond or on a body
+	} while (new_x > 1024 && new_y > 512 && valid_pos); //Not in the duck pond or on a body
+
 	pickup.pickup_sprite->position[0] = (new_x * 64);
 	pickup.pickup_sprite->position[1] = (new_y * 64);
 }
@@ -267,32 +279,60 @@ void SnakeGame::update(const ASGE::GameTime & time)
 	if (game_state == GameState::PLAY)
 	{
 		count += time.delta_time.count() * 00.1;
+
 		if (count >= game_speed)
 		{
 			new_pos[0] = player.sprite->position[0];
 			new_pos[1] = player.sprite->position[1];
+
 			player.sprite->position[player.movment_axis] += player.direction * 64;
+
 			if (player.getLength() > 0)
 			{
 				updateSnakeBody();
 			}
+
+			/*
+			*	If the player.collison function returns true, they have hit a pickup
+			*	therefore the game needs to draw the new body sprite
+			*	and modify the game speed
+			*/
+			if (player.collision(pickup, snake_body, game_speed))
+			{
+				/*
+				*	Filling a temoprary array with the contents of snake_body
+				*	Expanding snake_body
+				*	Refilling snake_body
+				*/
+				temp_body = new Body[int(player.getLength())];
+
+				for (int i = 0; i < player.getLength(); i++)
+				{
+					temp_body[i] = snake_body[i];
+				}
+
+				snake_body = new Body[int(player.getLength())];
+
+				for (int i = 0; i < player.getLength(); i++)
+				{
+					snake_body[i] = temp_body[i];
+				}
+
+				snake_body[(player.getLength() - 1)].drawSprite(renderer.get(), new_pos);
+				setPickupPos();
+
+				if (game_speed > 1)
+				{
+					game_speed--;
+				}
+
+				delete[] temp_body;
+				temp_body = nullptr;
+			}
 			count = 0;
 		}
 
-		/*
-		*	If the player.collison function returns true, they have hit a pickup
-		*	therefore the game needs to draw the new body sprite
-		*	and modify the game speed
-		*/
-		if (player.collision(pickup, snake_body, game_speed))
-		{
-			snake_body[(player.getLength() - 1)]->drawSprite(renderer.get(), new_pos);
-			setPickupPos();
-			if (game_speed > 1)
-			{
-				game_speed--;
-			}
-		}
+
 	}
 	// should we terminate the game?
 	if (shouldExit())
@@ -308,26 +348,35 @@ void SnakeGame::renderMain()
 	{
 		return;
 	}
+
 	switch (menu_option)
 	{
-	case 0:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\n> Play <", 100, 335, 1.0, ASGE::COLOURS::BROWN);
-		renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
-		break;
-	case 1:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Help <", 100, 385, 1.0, ASGE::COLOURS::BROWN);
-		renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
-		break;
-	case 2:
-		renderer->renderSprite(*sprite);
-		renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
-		renderer->renderText("\n> Plz no <", 100, 435, 1.0, ASGE::COLOURS::BROWN);
-		break;
+		case 0:
+		{
+			renderer->renderSprite(*sprite);
+			renderer->renderText("\n> Play <", 100, 335, 1.0, ASGE::COLOURS::BROWN);
+			renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
+			renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
+			break;
+		}
+
+		case 1:
+		{
+			renderer->renderSprite(*sprite);
+			renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
+			renderer->renderText("\n> Help <", 100, 385, 1.0, ASGE::COLOURS::BROWN);
+			renderer->renderText("\nExit", 100, 435, 1.0, ASGE::COLOURS::DARKGREEN);
+			break;
+		}
+
+		case 2:
+		{
+			renderer->renderSprite(*sprite);
+			renderer->renderText("\nPlay", 100, 335, 1.0, ASGE::COLOURS::DARKGREEN);
+			renderer->renderText("\nHelp", 100, 385, 1.0, ASGE::COLOURS::DARKGREEN);
+			renderer->renderText("\n> Plz no <", 100, 435, 1.0, ASGE::COLOURS::BROWN);
+			break;
+		}
 	}
 
 	return;
@@ -362,7 +411,7 @@ void SnakeGame::renderPlay()
 
 	for (int x = 0; x < player.getLength(); x++)
 	{
-		renderer->renderSprite(*snake_body[x]->sprite);
+		renderer->renderSprite(*snake_body[x].sprite);
 	}
 
 	renderer->renderText(score_const, 15, 640, 1.0, ASGE::COLOURS::BLACK);
@@ -381,13 +430,14 @@ void SnakeGame::renderPause()
 	{
 		return;
 	}
+
 	renderer->renderSprite(*sprite);
 	renderer->renderSprite(*player.sprite);
 	renderer->renderSprite(*pickup.pickup_sprite);
 
 	for (int x = 0; x < player.getLength(); x++)
 	{
-		renderer->renderSprite(*snake_body[x]->sprite);
+		renderer->renderSprite(*snake_body[x].sprite);
 	}
 
 	renderer->renderSprite(*pause);
@@ -404,9 +454,11 @@ void SnakeGame::renderGameOver()
 	{
 		return;
 	}
+
 	int score = player.getScore();
 	std::string score_string = "\nYou scored: " + std::to_string(score);
 	const char *score_const = score_string.c_str();
+
 	renderer->renderSprite(*sprite);
 	renderer->renderText(score_const, 375, 325, 1.0, ASGE::COLOURS::BROWN);
 	renderer->renderText("\nEnter to continue", 375, 525, 1.0, ASGE::COLOURS::DARKGREEN);
@@ -429,22 +481,38 @@ void SnakeGame::render(const ASGE::GameTime &)
 
 	switch (game_state)
 	{
-	case GameState::MAIN:
-		renderMain();
-		break;
-	case GameState::HELP:
-		renderHelp();
-		break;
-	case GameState::PLAY:
-		renderPlay();
-		break;
-	case GameState::PAUSE:
-		renderPause();
-		break;
-	case GameState::GAMEOVER:
-		renderGameOver();
-		break;
+		case GameState::MAIN:
+		{
+			renderMain();
+			break;
+		}
+
+		case GameState::HELP:
+		{
+			renderHelp();
+			break;
+		}
+
+		case GameState::PLAY:
+		{
+			renderPlay();
+			break;
+		}
+
+		case GameState::PAUSE:
+		{
+			renderPause();
+			break;
+		}
+
+		case GameState::GAMEOVER:
+		{
+			renderGameOver();
+			break;
+		}
 	}
+
+	return;
 }
 
 
@@ -459,123 +527,146 @@ void SnakeGame::processGameActions()
 {
 	switch (game_state)
 	{
-	case GameState::MAIN:
-		if (game_action == GameAction::EXIT)
+		case GameState::MAIN:
 		{
-			this->exit = true;
-		}
-
-		if (game_action == GameAction::UP)
-		{
-			menu_option--;
-			if (menu_option < 0)
+			if (game_action == GameAction::EXIT)
 			{
-				menu_option = 0;
-			}
-		}
-
-		if (game_action == GameAction::DOWN)
-		{
-			menu_option++;
-			if (menu_option > 2)
-			{
-				menu_option = 2;
-			}
-		}
-
-		if (game_action == GameAction::SELECT)
-		{
-			switch (menu_option)
-			{
-			case 0:
-				game_state = GameState::PLAY;
-				break;
-			case 1:
-				game_state = GameState::HELP;
-				break;
-			case 2:
 				this->exit = true;
-				break;
 			}
-		}
-		break;
 
-	case GameState::PLAY:
-
-		if (game_action == GameAction::EXIT)
-		{
-			game_state = GameState::PAUSE;
-		}
-
-		if (game_action == GameAction::UP)
-		{
-			if (!(new_pos[1] < player.sprite->position[1]))
+			if (game_action == GameAction::UP)
 			{
-				player.sprite->angle = 0.0f;
-				player.movment_axis = 1;
-				player.direction = -1;
+				menu_option--;
+				if (menu_option < 0)
+				{
+					menu_option = 0;
+				}
 			}
-		}
 
-		if (game_action == GameAction::DOWN)
-		{
-			if (!(new_pos[1] > player.sprite->position[1]))
+			if (game_action == GameAction::DOWN)
 			{
-				player.sprite->angle = 3.14f;
-				player.movment_axis = 1;
-				player.direction = 1;
+				menu_option++;
+				if (menu_option > 2)
+				{
+					menu_option = 2;
+				}
 			}
-		}
 
-		if (game_action == GameAction::LEFT)
-		{
-			if (!(new_pos[0] < player.sprite->position[0]))
+			if (game_action == GameAction::SELECT)
 			{
-				player.sprite->angle = 4.71f;
-				player.movment_axis = 0;
-				player.direction = -1;
+				switch (menu_option)
+				{
+					case 0:
+					{
+						game_state = GameState::PLAY;
+						break;
+					}
+
+					case 1:
+					{
+						game_state = GameState::HELP;
+						break;
+					}
+
+					case 2:
+					{
+						this->exit = true;
+						break;
+					}
+				}
 			}
+			break;
 		}
 
-		if (game_action == GameAction::RIGHT)
+
+		case GameState::PLAY:
 		{
-			if (!(new_pos[0] > player.sprite->position[0]))
+
+			if (game_action == GameAction::EXIT)
 			{
-				player.sprite->angle = 1.57f;
-				player.movment_axis = 0;
-				player.direction = 1;
+				game_state = GameState::PAUSE;
 			}
-		}
-	case GameState::HELP:
-	{
-		if (game_action == GameAction::SELECT)
-		{
-			game_state = GameState::MAIN;
-			menu_option = 1;
-		}
-		break;
-	}
-	case GameState::PAUSE:
-	{
-		if (game_action == GameAction::EXIT)
-		{
-			game_state = GameState::PLAY;
-		}
-		break;
-	}
-	case GameState::GAMEOVER:
-	{
-		if (game_action == GameAction::SELECT)
-		{
-			game_speed = 30;
-			pickup.reset();
-			player.reset();
-			game_state = GameState::MAIN;
-			menu_option = 1;
-		}
-		break;
-	}
-	}
 
+			if (game_action == GameAction::UP)
+			{
+				if (!(new_pos[1] < player.sprite->position[1]))
+				{
+					player.sprite->angle = 0.0f;
+					player.movment_axis = 1;
+					player.direction = -1;
+				}
+			}
+
+			if (game_action == GameAction::DOWN)
+			{
+				if (!(new_pos[1] > player.sprite->position[1]))
+				{
+					player.sprite->angle = 3.14f;
+					player.movment_axis = 1;
+					player.direction = 1;
+				}
+			}
+
+			if (game_action == GameAction::LEFT)
+			{
+				if (!(new_pos[0] < player.sprite->position[0]))
+				{
+					player.sprite->angle = 4.71f;
+					player.movment_axis = 0;
+					player.direction = -1;
+				}
+			}
+
+			if (game_action == GameAction::RIGHT)
+			{
+				if (!(new_pos[0] > player.sprite->position[0]))
+				{
+					player.sprite->angle = 1.57f;
+					player.movment_axis = 0;
+					player.direction = 1;
+				}
+			}
+
+			break;
+		}
+
+		case GameState::HELP:
+		{
+			if (game_action == GameAction::SELECT)
+			{
+				game_state = GameState::MAIN;
+				menu_option = 1;
+			}
+			break;
+		}
+
+		case GameState::PAUSE:
+		{
+			if (game_action == GameAction::EXIT)
+			{
+				game_state = GameState::PLAY;
+			}
+			break;
+		}
+
+		case GameState::GAMEOVER:
+		{
+			if (game_action == GameAction::SELECT)
+			{
+				game_speed = 30;
+
+				pickup.reset();
+				player.reset();
+
+				game_state = GameState::MAIN;
+				menu_option = 1;
+			}
+
+			break;
+		}
+	}
+	
 	game_action = GameAction::NONE;
+
+	return;
 }

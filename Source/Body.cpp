@@ -46,6 +46,5 @@ int Body::getPosition(int x)
 
 bool Body::reset()
 {
-
 	return true;
 }
