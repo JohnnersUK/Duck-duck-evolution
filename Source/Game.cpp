@@ -208,7 +208,7 @@ void SnakeGame::setPickupPos()
 	int new_y;
 	bool valid_pos;
 
-	do //Random a new pickup pos
+	do
 	{
 		valid_pos = true;
 
@@ -225,7 +225,7 @@ void SnakeGame::setPickupPos()
 				}
 			}
 		}
-	} while (new_x > 1024 && new_y > 512 && valid_pos); //Not in the duck pond or on a body
+	} while (new_x > 1024 && new_y > 512 && valid_pos);
 
 	pickup.pickup_sprite->position[0] = (new_x * 64);
 	pickup.pickup_sprite->position[1] = (new_y * 64);
